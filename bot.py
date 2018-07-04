@@ -370,7 +370,7 @@ class Modmail(commands.Bot):
                 category=categ
                 )
             await channel.edit(topic=topic)
-            await channel.send('New modmail, <@324431374264172556>!', embed=self.format_info(message))
+            await channel.send('New modmail, <@324431374264172556>!' if message.guild.id == 454371166904254464 else 'New modmail, @here', embed=self.format_info(message))
 
     async def on_message(self, message):
         if message.author.bot:
