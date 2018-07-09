@@ -178,7 +178,7 @@ class Modmail(commands.Bot):
     #@commands.has_permissions(administrator=True)
     async def setup(self, ctx, *, modrole: discord.Role=None):
         '''Sets up a server for modmail'''
-        if ctx.author.id not in (277981712989028353, 465970009760464926):
+        if ctx.author.id != 277981712989028353:
             return
         if discord.utils.get(ctx.guild.categories, name='Mod Mail'):
             return await ctx.send('This server is already set up.')
