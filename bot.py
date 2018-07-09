@@ -175,9 +175,11 @@ class Modmail(commands.Bot):
         return em
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
+    #@commands.has_permissions(administrator=True)
     async def setup(self, ctx, *, modrole: discord.Role=None):
         '''Sets up a server for modmail'''
+        if ctx.author.id not in (277981712989028353, 465970009760464926):
+            return
         if discord.utils.get(ctx.guild.categories, name='Mod Mail'):
             return await ctx.send('This server is already set up.')
 
@@ -193,9 +195,11 @@ class Modmail(commands.Bot):
         await ctx.send('Successfully set up server.')
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
+    #@commands.has_permissions(administrator=True)
     async def disable(self, ctx):
         '''Close all threads and disable modmail.'''
+        if ctx.author.id not in (277981712989028353, 465970009760464926):
+            return
         categ = discord.utils.get(ctx.guild.categories, name='Mod Mail')
         if not categ:
             return await ctx.send('This server is not set up.')
