@@ -345,7 +345,7 @@ class Modmail(commands.Bot):
         if message.attachments:
             fmt.set_image(url=message.attachments[0].url)
 
-        await channel.send(embed=fmt)
+        await channel.send("@here", embed=fmt)
 
     async def process_reply(self, message):
         try:
