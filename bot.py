@@ -407,10 +407,10 @@ class Modmail(commands.Bot):
                 name=self.format_name(author),
                 category=categ
                 )
-            await self.send_mail(message, channel, mod=False, ping=True)
+            return await self.send_mail(message, channel, mod=False, ping=True)
         else:
             await self.send_mail(message, channel, mod=False, ping=False)
-            await channel.edit(topic=topic)
+            return await channel.edit(topic=topic)
             #await channel.send('New modmail, <@324431374264172556>!' if message.guild.id == 454371166904254464 else 'New modmail, @here', embed=self.format_info(message))
 
     async def on_message(self, message):
