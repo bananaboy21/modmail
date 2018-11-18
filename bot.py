@@ -405,7 +405,8 @@ class Modmail(commands.Bot):
         if channel is None:
             channel = await guild.create_text_channel(
                 name=self.format_name(author),
-                category=categ
+                category=categ,
+                topic=f"User ID: {message.author.id}"
                 )
             return await self.send_mail(message, channel, mod=False, ping=True)
         else:
