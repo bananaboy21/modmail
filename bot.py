@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-GUILD_ID = 0 # your guild id here
+GUILD_ID = 511222673309696025 # your guild id here
 
 import discord
 from discord.ext import commands
@@ -40,12 +40,14 @@ import traceback
 import io
 import inspect
 from contextlib import redirect_stdout
-
+from motor.motor_asyncio import AsyncIOMotorClient
 
 class Modmail(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=self.get_pre)
         self.uptime = datetime.datetime.utcnow()
+        db = AsyncIOMotorClient("mongodb://bananaboy21:clashnewshub21@ds037047.mlab.com:37047/clashnewshub")
+        self.db = db.clashnewshub
         self._add_commands()
 
     def _add_commands(self):
@@ -54,6 +56,14 @@ class Modmail(commands.Bot):
             cmd = getattr(self, attr)
             if isinstance(cmd, commands.Command):
                 self.add_command(cmd)
+
+    
+    def check(self, user):
+        return "Staff" in [x.name for x in user.roles]
+
+    async def find_command(self, name):
+        data = await self.db.commands.find_one({"name": name})
+        return data
 
     @property
     def token(self):
@@ -111,7 +121,7 @@ class Modmail(commands.Bot):
         print('Modmail connected!')
         status = os.getenv('STATUS')
         if status:   
-            await self.change_presence(game=discord.Game(name=status))
+            await self.change_presence(activity=discord.Game(name=status))
             print(f'Setting Status to {status}')
         else:
             print('No status set.')
@@ -134,6 +144,7 @@ class Modmail(commands.Bot):
         User ID: {self.user.id}
         ---------------
         '''))
+
 
     def overwrites(self, ctx, modrole=None):
         '''Permision overwrites for the guild.'''
@@ -173,6 +184,27 @@ class Modmail(commands.Bot):
         em.set_footer(text='Star the repository to unlock hidden features!')
 
         return em
+
+    @commands.command()
+    async def customcommand(self, ctx, action, name, *, content=None):
+        if not self.check(ctx.author):
+            return await ctx.send("You don't have permission to set these custom commands!")
+        if action.lower() == "add":
+            stuff = await self.find_command(name)
+            if stuff: 
+                return await ctx.send("A command already exists with that name.")
+            else:
+                await self.db.commands.update_one({"name": name}, {"$set": {"content": content}}, upsert=True)
+
+            return await ctx.send(f"The custom command **{name}** has been created.")
+        elif action.lower() == "remove":
+            stuff = await self.find_command(name)
+            if not stuff:
+                return await ctx.send("This custom command was never made!")
+            await self.db.commands.delete_one({"name": name})
+            return await ctx.send(f"The custom command **{name}** has been removed.")
+        else:
+            await ctx.send("Incorrect usage! !customcommand [add/remove] [name] [content]")
 
     @commands.command()
     #@commands.has_permissions(administrator=True)
@@ -379,6 +411,15 @@ class Modmail(commands.Bot):
     async def on_message(self, message):
         if message.author.bot:
             return
+        if message.content.startswith("!"):
+            cmd = message.content.replace("!", "")
+            stuff = await self.find_command(cmd)
+            try:
+                content = stuff["content"]
+            except:
+                pass
+            else:
+                await message.channel.send(content)
         await self.process_commands(message)
         if isinstance(message.channel, discord.DMChannel):
             await self.process_modmail(message)
@@ -398,8 +439,8 @@ class Modmail(commands.Bot):
     async def _status(self, ctx, *, message):
         '''Set a custom playing status for the bot.'''
         if message == 'clear':
-            return await self.change_presence(game=None)
-        await self.change_presence(game=discord.Game(name=message), status=discord.Status.online)
+            return await self.change_presence(activity=None)
+        await self.change_presence(activity=discord.Game(name=message), status=discord.Status.online)
         await ctx.send(f"Changed status to **{message}**")
 
     @commands.command()
