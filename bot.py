@@ -316,7 +316,7 @@ class Modmail(commands.Bot):
 
         return em
 
-    async def send_mail(self, message, channel, mod):
+    async def send_mail(self, message, channel, mod, ping=False):
         author = message.author
         fmt = discord.Embed()
         fmt.description = message.content
@@ -344,8 +344,10 @@ class Modmail(commands.Bot):
 
         if message.attachments:
             fmt.set_image(url=message.attachments[0].url)
-
-        await channel.send("@here", embed=fmt)
+        if ping: 
+            await channel.send("@here", embed=fmt)
+        else:
+            await channel.send(embed=fmt)
 
     async def process_reply(self, message):
         try:
@@ -400,12 +402,15 @@ class Modmail(commands.Bot):
         #if channel is not None:
         
         await message.author.send(embed=em)
-        channel = await guild.create_text_channel(
-            name=self.format_name(author),
-            category=categ
-            )
-        await self.send_mail(message, channel, mod=False)
-        await channel.edit(topic=topic)
+        if channel is None:
+            channel = await guild.create_text_channel(
+                name=self.format_name(author),
+                category=categ
+                )
+            await self.send_mail(message, channel, mod=False, ping=True)
+        else:
+            await self.send_mail(message, channel, mod=False, ping=False)
+            await channel.edit(topic=topic)
             #await channel.send('New modmail, <@324431374264172556>!' if message.guild.id == 454371166904254464 else 'New modmail, @here', embed=self.format_info(message))
 
     async def on_message(self, message):
