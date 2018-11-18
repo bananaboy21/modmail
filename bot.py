@@ -398,14 +398,14 @@ class Modmail(commands.Bot):
         em.color = discord.Color.green()
 
         #if channel is not None:
+        
+        await message.author.send(embed=em)
+        channel = await guild.create_text_channel(
+            name=self.format_name(author),
+            category=categ
+            )
         await self.send_mail(message, channel, mod=False)
-        else:
-            await message.author.send(embed=em)
-            channel = await guild.create_text_channel(
-                name=self.format_name(author),
-                category=categ
-                )
-            await channel.edit(topic=topic)
+        await channel.edit(topic=topic)
             #await channel.send('New modmail, <@324431374264172556>!' if message.guild.id == 454371166904254464 else 'New modmail, @here', embed=self.format_info(message))
 
     async def on_message(self, message):
