@@ -383,7 +383,7 @@ class Modmail(commands.Bot):
         except:
             pass
 
-        guild = self.guild
+        guild = self.guild or self.bot.get_guild(511222673309696025)
         author = message.author
         topic = f'User ID: {author.id}'
         channel = discord.utils.get(guild.text_channels, topic=topic)
